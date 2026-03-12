@@ -1,7 +1,24 @@
-# Coolpaths
+# CoolPaths
 
-A pipeline to create Pysiologically Equivalent Temperature (PET) maps and to find cooler paths in the cities worldwide. It utilizes EarthEngine-based geospatia datasets, OSM,  Python libraries and NASA Power API for meteorological inputs.
+Street-scale PET mapping and microclimate-aware pedestrian routing from open data.
 
+This repository contains a Google Colab notebook (`Coolpaths.ipynb`) for generating high-resolution PET (Physiologically Equivalent Temperature) maps and using them to compute cooler pedestrian routes from OpenStreetMap-based networks.
+
+---
+
+## Overview
+
+The notebook creates a workflow that:
+
+1. downloads buildings and paths from OpenStreetMap,
+2. estimates building heights where missing,
+3. exports canopy, NDVI, water mask, DEM, and DSM data from Google Earth Engine,
+4. generates shadows, surface masks, DSM, and sky view factor,
+5. retrieves meteorological inputs from the NASA POWER API,
+6. computes irradiance, MRT, and PET rasters,
+7. uses PET maps for routing analysis to compare shortest versus coolest routes. 
+
+---
 
 <p align="center">
   <a href="https://colab.research.google.com/github/deepankverma/coolpaths/blob/main/notebooks/Coolpaths.ipynb">
@@ -21,15 +38,130 @@ PET quantifies the combined effect of solar and thermal radiation on humans and 
 </p>
 
 ## PET generation process
-Starting from a user-defined bounding box and date,  (a) a 1 m resolution DSM (digital surface model) is built by upsampling a 30m DEM raster, incorporating buildings with heights from OSM, and a 1 m resolution canopy layer. The resulting DSM is used to create the Sky View Factor (SVF) map. Then (b) vegetation, impervious, building, water masks are derieved to develop a surface-albedo map; further, (c)  hourly building and tree shadows and clear-sky shortwave components, daily aerosols and hourly irradiance are computed using NASA POWER API, (d) per-timestamp irradiance fields are calculated which are then combine with longwave terms and SVF to produce MRT rasters, (e) MRT and meteorology (Ta, RH, wind) are converted into PET via an equal-PMV formula. All outputs are written as GeoTIFFs (1 m grid), allowing for direct comparison across sites and time. Finally, (f) PET maps are used for OSM-based routing analyses to find cooler paths.
+
 
 <p align="center">
   <img src="images/PET_generation.jpg" alt="Methodology image" width="700">
 </p>
 
 ## Coolpaths routing
-For each study bounding box, we first attempt to construct a pedestrian graph with the network type set to “walk”. If the walk graph is too sparse (fewer than ~300 edges), we fall back to a “drive-proxy” graph that combines type set to “drive” with “walk”. We assign a thermal travel cost to each edge by sampling the PET along its geometry at 1 m spacing. Origin-destination (OD) pairs are drawn uniformly at random from graph nodes with the constraint that the shortest-by-distance path between them is at least 800 m, ensuring trips long enough for meaningful detours (Figure 3). For each OD, we compute two routes. The baseline is the classic shortest path by geometric length; we record its length L_0 and its cumulative heat H_0, which is given by the sum of edge heat costs along the path. The alternative is the coolest feasible route, which minimizes cumulative heat subject to a distance budget L (less than equal to) (1 + delta)L_0, where a detour cap of delta=0.5 is selected, that means an alternative feasible route cannot be greater than 1.5 times the shortest route. 
+
 
 <p align="center">
   <img src="images/Routing.jpg" alt="Methodology image" width="700">
 </p>
+
+
+
+
+## How to Use
+
+This notebook is designed primarily for **Google Colab** because it uses:
+
+- Google Drive mounting
+- Earth Engine authentication in Colab
+- Drive-based export and file copying
+
+---
+
+## Requirements
+
+Each user must have:
+
+- a **Google account**
+- access to **Google Earth Engine**
+- a **Google Cloud Project** linked to Earth Engine
+- access to **Google Drive**
+- Google Colab
+
+The notebook installs the following Python packages:
+
+- `pvlib`
+- `osmnx`
+- `rasterio`
+- `geopandas`
+- `pybdshadow`
+- `earthengine-api`
+- `numpy`
+- `topocalc`
+- `geemap`
+- `ipyleaflet`
+- `timezonefinder`
+- `pythermalcomfort` 
+
+---
+
+## Google Earth Engine and Google Drive setup
+
+To run this notebook with your own account, you must configure your own Earth Engine and Drive access.
+
+### 1. Create or use a Google account
+
+You need a Google account that you will use for:
+
+- Earth Engine authentication
+- Google Drive access
+- Colab login
+
+It is best to use the **same account** for all three.
+
+---
+
+### 2. Get access to Google Earth Engine
+
+You must have Earth Engine enabled for your Google account.
+
+If your account does not yet have Earth Engine access, request it through the Earth Engine signup process.
+
+---
+
+### 3. Create a Google Cloud Project
+
+Earth Engine in Python requires a Cloud Project during initialization.
+
+Create a Google Cloud Project and note its **Project ID**.
+
+Example:
+
+```python
+my-coolpaths-project-123
+```
+
+### 4. Enable Earth Engine for that Cloud Project
+
+Make sure your Cloud Project is configured for Earth Engine use.
+
+You will need this project ID in the notebook when initializing Earth Engine.
+
+### 5. Update the notebook with your own Earth Engine project
+
+In the notebook, there is a line like this:
+
+```python
+ee.Authenticate()
+ee.Initialize(project="ee-deepankverma1")
+```
+Replace it with your own Cloud Project ID:
+
+```python
+ee.Authenticate()
+ee.Initialize(project="YOUR_CLOUD_PROJECT_ID")
+```
+## 6. Google Drive configuration
+
+The notebook exports Earth Engine rasters to Google Drive and then copies them into the local working directory.
+
+The current notebook uses:
+
+```python
+folder = "test_simcity"
+prefix = "Berlin"
+```
+You should change these to your own values, for example:
+
+```python
+folder = "coolpaths_exports"
+prefix = "MyStudyArea"
+```
+
+Where the folder is the name of the folder in your Google Drive where Earth Engine exports will be saved and the prefix is used in the filenames and output folders.
