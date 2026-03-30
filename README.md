@@ -2,7 +2,7 @@
 
 Street-scale PET mapping and microclimate-aware pedestrian routing from open data.
 
-This repository contains a Google Colab notebook (`Coolpaths.ipynb`) for generating high-resolution PET (Physiologically Equivalent Temperature) maps and using them to compute cooler pedestrian routes from OpenStreetMap-based networks.
+This repository contains a Google Colab notebook (`Coolpaths.ipynb`) for generating high-resolution PET (Physiological Equivalent Temperature) maps and using them to compute cooler pedestrian routes from OpenStreetMap-based networks.
 
 ---
 
