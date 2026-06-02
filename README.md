@@ -165,3 +165,14 @@ prefix = "MyStudyArea"
 ```
 
 Where the folder is the name of the folder in your Google Drive where Earth Engine exports will be saved and the prefix is used in the filenames and output folders.
+
+## How to cite
+
+If you use code, methods, or outputs in your work, please cite:
+
+Verma, D., Mumm, O., & Carlow, V. M. (2026). CoolPaths: Street-scale Physiological Equivalent Temperature (PET) mapping and cooler-routes planning using open data. City and Environment Interactions, 30, 100349. https://doi.org/10.1016/j.cacint.2026.100349
+
+### BibTeX
+
+```bibtex
+@article{verma2026coolpaths, title = {CoolPaths: Street-scale Physiological Equivalent Temperature (PET) mapping and cooler-routes planning using open data}, author = {Verma, Deepank and Mumm, Olaf and Carlow, Vanessa Miriam}, journal = {City and Environment Interactions}, volume = {30}, pages = {100349}, year = {2026}, month = mar, doi = {10.1016/j.cacint.2026.100349}, url = {https://www.sciencedirect.com/science/article/pii/S2590252026000565} }
